@@ -1,7 +1,10 @@
 $fa = 1;
 $fs = 0.4;
 
-include<./DDDModules.scad> 
+include<../src/centerpieces.scad>
+
+// holder for a rigid angle grinder based on Oclure's tool holders
+// https://makerworld.com/en/models/73318-dewalt-oscillating-tool-wall-control
 
 grinderHanger();
 module grinderHanger(numX=4, numY=4, mmHeight=30) {

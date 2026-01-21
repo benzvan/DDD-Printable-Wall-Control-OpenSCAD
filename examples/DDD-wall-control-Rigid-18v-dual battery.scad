@@ -1,7 +1,7 @@
 $fa = 1;
 $fs = 0.4;
 
-include<./DDDModules.scad> 
+include<../src/centerpieces.scad>
 
 baseDepth = 120; // front to back of battery
 baseWidth = 81;
@@ -81,19 +81,19 @@ module rail() {
                 cube([railBottomWidth, railTopDepth+railOverhangDepth, railBottomHeight]);
                 // rail hook
                 hull() {
-                    translate([0,0,railBottomHeight]) cube([railBottomWidth, railTopDepth+railOverhangDepth, 0.001]);
-                    translate([0,0,railHeight]) cube([railTopWidth, railTopDepth+railOverhangDepth, 0.001]);
+                    translate([0,0,railBottomHeight]) cube([railBottomWidth, railTopDepth+railOverhangDepth, EPS]);
+                    translate([0,0,railHeight]) cube([railTopWidth, railTopDepth+railOverhangDepth, EPS]);
                 }
             }
             // rail ramp 1
             translate([railOverhangWidth,railBottomDepth,0]) hull() {
-                translate([0,0,railHeight]) cube([railTopWidth, railTopDepth-railBottomDepth+railOverhangDepth, .001]);
-                translate([0,railTopDepth-railBottomDepth,0]) cube([railTopWidth, railOverhangDepth, .001]);
+                translate([0,0,railHeight]) cube([railTopWidth, railTopDepth-railBottomDepth+railOverhangDepth, 2*EPS]);
+                translate([0,railTopDepth-railBottomDepth,0]) cube([railTopWidth, railOverhangDepth, EPS]);
             }
             // rail ramp 2 (overhang)
             translate([0,railBottomDepth+railOverhangDepth,0]) hull() {
-                translate([0,0,railHeight]) cube([railTopWidth, railTopDepth-railBottomDepth+railOverhangDepth, .001]);
-                translate([0,railTopDepth-railBottomDepth,0]) cube([railTopWidth, railOverhangDepth, .001]);
+                translate([-EPS,0,railHeight]) cube([railTopWidth, railTopDepth-railBottomDepth+railOverhangDepth, 2*EPS]);
+                translate([-EPS,railTopDepth-railBottomDepth,0]) cube([railTopWidth, railOverhangDepth, EPS]);
             }
         }
     }
@@ -112,13 +112,13 @@ module clip() {
     translate([baseWidth/2 - clipWidth/2,backToClip-clipDepth,baseThickness-clipHeight]) {
         // clip
         hull() {
-            translate([0,clipDepth,0]) cube([clipWidth,.001,clipHeight]);
-            translate([0,0,clipHeight]) cube([clipWidth,.001,.001]);
+            translate([0,clipDepth,0]) cube([clipWidth,EPS,clipHeight+EPS]);
+            translate([0,0,clipHeight]) cube([clipWidth,EPS,EPS]);
         }
         // ramp
         hull() {
-            translate([0,clipGapDepth+clipDepth,clipHeight]) cube([clipWidth,.001,.001]);
-            translate([-baseWidth/2 +clipWidth/2,1+clipDepth+frontToClip,clipHeight/2]) cube([baseWidth, .001, clipHeight/2]);
+            translate([0,clipGapDepth+clipDepth,clipHeight]) cube([clipWidth,EPS,EPS]);
+            translate([-baseWidth/2 +clipWidth/2,1+clipDepth+frontToClip,clipHeight/2]) cube([baseWidth, EPS, clipHeight/2]);
         }
     }
 }

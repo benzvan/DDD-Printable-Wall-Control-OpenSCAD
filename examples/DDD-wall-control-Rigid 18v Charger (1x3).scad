@@ -1,7 +1,7 @@
 $fa = 1;
 $fs = 0.4;
 
-include<./DDDModules.scad>
+include<../src/centerpieces.scad>
 
 RigidCharger();
 module RigidCharger() {

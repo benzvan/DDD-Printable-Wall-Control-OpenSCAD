@@ -1,8 +1,8 @@
 $fa = 1;
 $fs = 0.4;
 
-include<../src/modules.scad> 
-use<./regular-polygon.scad>
+include<../src/centerpieces.scad>
+use<../src/regular-polygon.scad>
 
 HexBitFaceWidth = 7;
 HexBitCornerWidth = 2 * circumradius(HexBitFaceWidth/2, 6);
