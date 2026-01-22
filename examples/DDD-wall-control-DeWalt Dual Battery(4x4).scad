@@ -7,7 +7,7 @@ include<../src/sidepieces.scad>
 centerpiece_xCount = 4; // width of centerpice
 centerpiece_yCount = 3; // depth of centerpiece
 sidepiece_yCount = 4;   // depth of bracket
-sidepiece_zCount = 3;   // height of bracket
+sidepiece_zCount = 4;   // height of bracket
 
 spacerThickness = wc_spacerHeight+.5/wc_zPitch; // adds .5mm to spacer thickness to cover existing tabs on imported battery mount
 tabOffset = .5; // raise tabs to center on spacer to match top position
@@ -20,7 +20,7 @@ rotate([0,0,preview ? 180 : 0]) {
     dualBattery();
 
     // renders full parts list in place
-    if (preview) { color("grey") translate([0,0,-wc_zPitch*3+wc_bracketWidth]) parts(); }
+    if (preview) { translate([0,-wc_yPitch,-wc_zPitch*4+wc_bracketWidth]) parts(); }
 }
 
 module dualBattery() {
@@ -35,9 +35,9 @@ module dualBattery() {
 }
 
 module parts() {
-    rotate([0,-90,0]) sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount);
-    translate([centerpieceWidth(4)+wc_centerpieceFitSpaceY,0,0]) rotate([0,-90,180]) sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, side="left");
-    rotate([90,0,0]) spacer(numX=sidepiece_yCount,numY=2, locking=true);
+    color("grey") rotate([0,-90,0]) sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount);
+    color("grey") translate([centerpieceWidth(4)+wc_centerpieceFitSpaceY,0,0]) rotate([0,-90,180]) sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, side="left");
+    color("white") spacer(numX=centerpiece_xCount,numY=2, locking=true, vertical=true);
 }
 
 module batteryMount() {

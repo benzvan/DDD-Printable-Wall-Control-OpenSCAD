@@ -9,8 +9,8 @@ wc_centerpieceFitSpaceY = 0.2;
 // spacer(3, 2, locking=true); // creates a 3x2 spacer with locking screw holes
 
 // a spacer / centerpiece
-module spacer(numX, numY, numZ=wc_spacerHeight, tabHeight=0, locking=false, customHoles=undef) {
-    difference() {
+module spacer(numX, numY, numZ=wc_spacerHeight, tabHeight=0, locking=false, customHoles=undef, vertical=false) {
+    rotate([(vertical == true ? 90 : 0),0,0]) difference() {
         union() {
             cube([centerpieceWidth(numX), numY*wc_yPitch-wc_centerpieceFitSpaceY, numZ*wc_zPitch]);
             translate([0,0,tabHeight]) centerpieceTabs(numX, numY);

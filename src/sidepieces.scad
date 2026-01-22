@@ -4,7 +4,7 @@ wc_sidepieceTabFromTop = inchesToMM(3/32);
 wc_bracketWidth = inchesToMM(1/4);
 
 // example
-//sidepiece(numY=4, numZ=3, invert=false, side="right");
+//sidepiece(numY=4, numZ=4, invert=true, side="right");
 
 // standard sidepiece/bracket
 // numY: distance out from wall
@@ -37,11 +37,11 @@ module bracket(numY, numZ, bracketWidth, invert=false) {
             }
             firstSlotPosition = wc_sidepieceTabFromTop;
             steps = (numZ*wc_zPitch)/wc_centerpieceZPitch;
-            for(i=[0:steps]) { 
+            for(i=[0:steps-1]) { 
                 zPos = firstSlotPosition + (i*wc_centerpieceZPitch);
                 translate([zPos,0,0]) rotate([0,0,90]) sideSlots(numY=numY, numZ=numZ, zPos=zPos, zOffset=bracketWidth);
             }
-            for(i=[0:steps]) {
+            for(i=[0:steps-1]) {
                 zPos = i*wc_centerpieceZPitch+wc_zPitch;
                 translate([zPos,0,0]) bracketHoles(numY=numY, numZ=numZ, zPos=zPos, zOffset=bracketWidth);
             }
@@ -50,23 +50,55 @@ module bracket(numY, numZ, bracketWidth, invert=false) {
         color("gold") rotate([0,90,0]) translate([-(filetRadius+bracketWidth),filetRadius,0]) rotate([0,0,-90]) internalFilet(r=filetRadius, h=numZ*wc_zPitch);
     }
 
-    module bracketHoles(numY, numZ, zPos, zOffset=0) {
-        largeHoleRadius=wc_zPitch/2;
-        smallHoleRadius=wc_zPitch/4;
-        largeHoleYAtZPos = getYforX(numY, numZ, zPos+largeHoleRadius, zOffset);
-        largeHoleMaxY=largeHoleYAtZPos-(wc_zPitch/4);
-        smallHoleYAtZPos = getYforX(numY, numZ, zPos+smallHoleRadius, zOffset);
-        smallHoleMaxY=smallHoleYAtZPos-(wc_zPitch/4);
-        bufferZone = 5;
+    module bracketHoles(numY, numZ, zPos, zOffset=0) { // Z is rendered in X
+        // TODO: DRY this up and make it easier to read
+        holePitch = wc_centerpieceZPitch;
+        firstHoleCenterOffsetY = wc_yPitch;
+        
+        largeHoleRadius = wc_zPitch/2;
+        largeHoleMaxZPos = holeMaxZPos(largeHoleRadius);
+        largeHoleYAtZPos = getYforX(numY, numZ, zPos+largeHoleMaxZPos, zOffset);
+        largeHoleMaxYPos = holeMaxYPos(largeHoleRadius);
+
+        smallHoleRadius = wc_zPitch/4;
+        smallHoleMaxZPos = holeMaxZPos(smallHoleRadius);
+        smallHoleYAtZPos = getYforX(numY, numZ, zPos+smallHoleMaxZPos, zOffset);
+        smallHoleMaxYPos = holeMaxYPos(smallHoleRadius);
+
+        extraSmallHoleRadius = wc_zPitch/8;
+        extraSmallHoleMaxZPos = holeMaxZPos(extraSmallHoleRadius);
+        extraSmallHoleYAtZPos = getYforX(numY, numZ, zPos+extraSmallHoleMaxZPos, zOffset);
+        extraSmallHoleMaxYPos = holeMaxYPos(extraSmallHoleRadius);
+
+        bufferZone = 0;
         bracketHoleFilet = inchesToMM(1/32);
 
-        steps = (numY*wc_yPitch)/wc_centerpieceZPitch;
+        // Holes are placed at the top (z) of a zPitch strip
+        // function moves the center down by one hole radius to index on the top of the hole, 
+        // then up by 1/2 pitch to move it to the top of the strip
+        function holeCenterOffsetZ(holeR) = holeR - wc_zPitch/2;
+        function holeMaxZPos(holeR) = holeCenterOffsetZ(holeR) + holeR;
+        // holes are placed in the center of their holePitch front-to-back
+        function holeCenterOffsetY(holeR) = 0;
+        function holeMaxYPos(holeR) = holeCenterOffsetY(holeR) + holeR;
+
+        debug = false;
+        if (debug == true) {
+            #translate([holeCenterOffsetZ(largeHoleRadius) + largeHoleRadius,largeHoleYAtZPos,0]) fineCylinder(h=20, r=1);
+            #translate([holeCenterOffsetZ(smallHoleRadius) + smallHoleRadius,smallHoleYAtZPos,0]) fineCylinder(h=15, r=1);
+            #translate([holeCenterOffsetZ(extraSmallHoleRadius) + extraSmallHoleRadius,extraSmallHoleYAtZPos,0]) fineCylinder(h=10, r=1);
+        }
+
+        steps = ((numY*wc_yPitch)/wc_centerpieceZPitch);
         for(i=[0:steps-1]) {
-            translate([0,wc_yPitch+(i*wc_centerpieceZPitch),0]) {
-                if (wc_zPitch+(i*wc_centerpieceZPitch)+largeHoleRadius+bufferZone < largeHoleMaxY) {
-                    bracketHole(r=largeHoleRadius, h=bracketWidth, f=bracketHoleFilet);
-                } else if (wc_zPitch+(i*wc_centerpieceZPitch)+smallHoleRadius+bufferZone < smallHoleMaxY) {
-                    translate([-smallHoleRadius,0,0]) bracketHole(r=smallHoleRadius, h=bracketWidth, f=bracketHoleFilet);
+            originalHoleCenter = [0,firstHoleCenterOffsetY+(i*holePitch)];
+            translate([0,originalHoleCenter.y,0]) {
+                if ( originalHoleCenter.y + largeHoleMaxYPos < largeHoleYAtZPos ) {
+                    translate([holeCenterOffsetZ(largeHoleRadius),0,0]) bracketHole(r=largeHoleRadius, h=bracketWidth, f=bracketHoleFilet);
+                } else if ( originalHoleCenter.y + smallHoleMaxYPos < smallHoleYAtZPos ) {
+                    translate([holeCenterOffsetZ(smallHoleRadius),0,0]) bracketHole(r=smallHoleRadius, h=bracketWidth, f=bracketHoleFilet);
+                } else if ( originalHoleCenter.y + extraSmallHoleMaxYPos < extraSmallHoleYAtZPos ) {
+                    translate([holeCenterOffsetZ(extraSmallHoleRadius),0,0]) bracketHole(r=extraSmallHoleRadius, h=bracketWidth, f=bracketHoleFilet);
                 }
             }
         }
