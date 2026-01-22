@@ -20,13 +20,13 @@ rotate([0,0,preview ? 180 : 0]) {
     dualBattery();
 
     // renders full parts list in place
-    if (preview) { translate([0,-wc_yPitch,-wc_zPitch*4+wc_bracketWidth]) parts(); }
+    if (preview) { parts(); }
 }
 
 module dualBattery() {
     difference() {
-        spacer(centerpiece_xCount, centerpiece_yCount, spacerThickness, tabOffset);
-        translate([-centerpieceWidth(3)/2+centerpieceWidth(4)/2,2*wc_yPitch,-3.5]) cube([centerpieceWidth(3)-1,wc_yPitch,8]);
+        spacer(numX=centerpiece_xCount, numY=centerpiece_yCount, numZ=spacerThickness, tabOffset);
+        translate([(-(centerpieceWidth(3)-1)/2+(centerpieceWidth(4)/2)),2*wc_yPitch,-EPS]) cube([centerpieceWidth(3)-1,wc_yPitch,spacerThickness*wc_zPitch+2*EPS]);
     }
     translate([-3.9-centerpieceWidth(3)/2+centerpieceWidth(4)/2,0,3]) {
         translate([0,0,0]) batteryMount();
@@ -35,9 +35,9 @@ module dualBattery() {
 }
 
 module parts() {
-    color("grey") rotate([0,-90,0]) sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount);
-    color("grey") translate([centerpieceWidth(4)+wc_centerpieceFitSpaceY,0,0]) rotate([0,-90,180]) sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, side="left");
-    color("white") spacer(numX=centerpiece_xCount,numY=2, locking=true, vertical=true);
+    color("grey") sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, vertical=true, place=[0,-1,0]);
+    color("grey") sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, side="left", vertical="true", place=[4,-1,0]);
+    color("white") spacer(numX=centerpiece_xCount,numY=2, locking=true, vertical=true, place=[0,-1,-1]);
 }
 
 module batteryMount() {

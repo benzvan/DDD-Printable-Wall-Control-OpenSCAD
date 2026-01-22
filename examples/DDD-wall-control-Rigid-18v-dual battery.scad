@@ -2,6 +2,7 @@ $fa = 1;
 $fs = 0.4;
 
 include<../src/centerpieces.scad>
+include<../src/sidepieces.scad>
 
 baseDepth = 120; // front to back of battery
 baseWidth = 81;
@@ -14,16 +15,43 @@ contactInsideHeight = 12;
 contactBottomDepth = 27; // top of back ramp
 contactTopDepth = 20;
 
-ryobiDualBatteryHolder();
-module ryobiDualBatteryHolder() {
-    xCount = 4;
-    yCount = 4;
+centerpiece_numX = 4; // width of centerpice
+centerpiece_numY = 4; // depth of centerpiece
+sidepiece_numY = 4;   // depth of bracket
+sidepiece_numZ = 4;   // height of bracket
+
+spacerThickness = wc_spacerHeight;
+spacerThicknessMM = wc_zPitch * spacerThickness;
+tabOffset = .5; // raise tabs to center on spacer to match top position
+
+preview = true;
+parts = true;
+// orient for preview image
+rotate([0,0,preview ? 180 : 0]) {
+    // renders just the sidepiece
+    ryobiDualBatteryHolder(numX=centerpiece_numX, numY=centerpiece_numY, spacerThickness=spacerThickness);
+
+    // renders full parts list in place
+    if (preview) { parts(); }
+}
+
+module parts() {
+    color("grey") sidepiece(numY=sidepiece_numY,numZ=sidepiece_numZ, vertical=true, place=[0,0,0]);
+    color("grey") sidepiece(numY=sidepiece_numY,numZ=sidepiece_numZ, side="left", vertical="true", place=[centerpiece_numX,0,0]);
+    color("white") spacer(numX=centerpiece_numX,numY=2, locking=true, vertical=true, place=[0,0,-1]);
+}
+
+module ryobiDualBatteryHolder(numX, numY, spacerThickness) {
     difference() {
-        translate([-wc_xPitch/2+3.9,0,-3]) spacer(xCount,yCount, 7/wc_zPitch, 2);
-        translate([4,2*wc_yPitch,-3.5]) cube([centerpieceWidth(3)-1,3*wc_yPitch,8]);
+        spacer(numX,numY, spacerThickness);
+        translate( [ ( centerpiece_numX * wc_xPitch ) / 2 - ( centerpieceWidth( centerpiece_numX - 1 ) ) / 2 , ( centerpiece_numY / 2 ) * wc_yPitch, -EPS ] ) {
+            cube( [ centerpieceWidth( centerpiece_numX - 1 ) - 1, 3 * wc_yPitch, spacerThicknessMM + 2* EPS ] );
+        }
     }
-    ryobiBatteryHolder();
-    mirror([0,0,1])  ryobiBatteryHolder();
+    translate([ centerpieceWidth( centerpiece_numX ) / 2 - baseWidth / 2, 0, spacerThicknessMM / 2 ] ) {
+        ryobiBatteryHolder();
+        mirror([0,0,1])  ryobiBatteryHolder();
+    }
 }
 
 module ryobiBatteryHolder() {
@@ -40,7 +68,7 @@ module base() {
 }
 
 module contactBox() {
-translate([baseWidth/2 - contactInsideWidth/2,0,baseThickness]) cube([contactInsideWidth, contactInsideDepth, contactInsideHeight]);
+    translate([baseWidth/2 - contactInsideWidth/2,0,baseThickness]) cube([contactInsideWidth, contactInsideDepth, contactInsideHeight]);
 }
 
 // Rail

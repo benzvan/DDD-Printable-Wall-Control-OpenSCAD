@@ -9,24 +9,33 @@ wc_centerpieceFitSpaceY = 0.2;
 // spacer(3, 2, locking=true); // creates a 3x2 spacer with locking screw holes
 
 // a spacer / centerpiece
-module spacer(numX, numY, numZ=wc_spacerHeight, tabHeight=0, locking=false, customHoles=undef, vertical=false) {
-    rotate([(vertical == true ? 90 : 0),0,0]) difference() {
-        union() {
-            cube([centerpieceWidth(numX), numY*wc_yPitch-wc_centerpieceFitSpaceY, numZ*wc_zPitch]);
-            translate([0,0,tabHeight]) centerpieceTabs(numX, numY);
-        }
-        if (customHoles) {
-            customLockingHoles(customHoles);
-        } else if (locking==true) {
-            lockingHoles(numX, numY);
+module spacer(numX, numY, numZ=wc_spacerHeight, tabHeight=0, locking=false, customHoles=undef, vertical=false, place=undef) {
+    xPlacement = place == undef ? 0 : place.x * wc_xPitch;
+    yPlacement = place == undef ? 0 : place.y * wc_yPitch;
+    zPlacement = ( place == undef ? 0 : place.z * wc_zPitch ) - ( vertical ? numY * wc_zPitch : 0 );
+
+    xRotation = (vertical == true ? 90 : 0);
+
+    translate([xPlacement, yPlacement, zPlacement]) {
+        rotate([xRotation,0,0]) difference() {
+            union() {
+                cube([centerpieceWidth(numX), numY*wc_yPitch-wc_centerpieceFitSpaceY, numZ*wc_zPitch]);
+                translate([0,0,tabHeight]) centerpieceTabs(numX, numY);
+            }
+            if (customHoles) {
+                customLockingHoles(customHoles);
+            } else if (locking==true) {
+                lockingHoles(numX, numY);
+            }
         }
     }
+}
 
-    module centerpieceTabs(numX, numY) {
-        for(i=[0:numY-1]) {
-            translate([centerpieceWidth(numX),(i*wc_yPitch)+7.55,0]) tab();
-            translate([0,(i*wc_yPitch)+7.55,0]) mirror([1,0,0]) tab();
-        }
+// generates tabs for left and right of centerpice
+module centerpieceTabs(numX, numY) {
+    for(i=[0:numY-1]) {
+        translate([centerpieceWidth(numX),(i*wc_yPitch)+7.55,0]) tab();
+        translate([0,(i*wc_yPitch)+7.55,0]) mirror([1,0,0]) tab();
     }
 }
 

@@ -9,17 +9,51 @@ wc_bracketWidth = inchesToMM(1/4);
 // standard sidepiece/bracket
 // numY: distance out from wall
 // numZ: distance vertically on wall (will be rendered in x)
-module sidepiece(numY, numZ, bracket=true, invert=false, side="right", bracketWidth=wc_bracketWidth) {
-    mirror([0,side == "left" ? 1 : 0,0]) {
-        difference() {
-            union() {
-                wallControlHooks(numZ);
-                flat(numZ, bracket=bracket);
-                if (bracket) {
-                    bracket(numY, numZ, invert=invert, bracketWidth=bracketWidth);
+module sidepiece(numY, numZ, bracket=true, invert=false, side="right", bracketWidth=wc_bracketWidth, vertical=false, horizontal=false, place=undef) {
+    bracketXRotation = 00;
+    bracketYRotation = vertical ? -90 : 0;
+    bracketZRotation = vertical && side == "left" ? 180 : 0;
+
+    flatXRotation = side == "right" ? 90 : -90;
+    flatYRotation = 0;
+    flatZRotation = 90;
+
+    xRotation = bracket ? bracketXRotation : flatXRotation;
+    yRotation = bracket ? bracketYRotation : flatYRotation;
+    zRotation = bracket ? bracketZRotation : flatZRotation;
+
+    bracketXPlacement = place == undef ? 0 : ( side == "right" ? place.x * wc_xPitch - wc_centerpieceFitSpaceY : centerpieceWidth( place.x ) ) + ( side == "right" ? 0 : wc_centerpieceFitSpaceY) ;
+    bracketYPlacement = place == undef ? 0 : place.y * wc_yPitch;
+    bracketZPlacement = place == undef ? 0 : ( place.z - numZ ) * wc_zPitch  + ( invert ? -0 : wc_bracketWidth );
+
+    baseFlatXPlacement = 0;
+    baseFlatYPlacement = 0;
+    baseFlatZPlacement = wc_tabHeight;
+
+    flatXPlacement = place == undef ? baseFlatXPlacement : ( side == "left" ? place.x * wc_xPitch - wc_centerpieceFitSpaceY : centerpieceWidth( place.x ) ) + ( side == "left" ? 0 : wc_centerpieceFitSpaceY) ;
+    flatYPlacement = place == undef ? baseFlatYPlacement : place.y * wc_yPitch;
+    flatZPlacement = place == undef ? baseFlatZPlacement : baseFlatZPlacement + place.z * wc_zPitch;
+
+    xPlacement = bracket ? bracketXPlacement : flatXPlacement;
+    yPlacement = bracket ? bracketYPlacement : flatYPlacement;
+    zPlacement = bracket ? bracketZPlacement : flatZPlacement;
+
+    mirrorY = side == "left" ? 1 : 0;
+
+    translate([ xPlacement, yPlacement, zPlacement ]) {
+        rotate([ xRotation, yRotation, zRotation ]) { 
+            mirror([0,mirrorY,0]) {
+                difference() {
+                    union() {
+                        wallControlHooks(numZ);
+                        flat(numZ, bracket=bracket);
+                        if (bracket) {
+                            bracket(numY, numZ, invert=invert, bracketWidth=bracketWidth);
+                        }
+                    }
+                    sideSlots(numZ);
                 }
             }
-            sideSlots(numZ);
         }
     }
 }
