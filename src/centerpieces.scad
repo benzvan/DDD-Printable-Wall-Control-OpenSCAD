@@ -5,13 +5,6 @@ include<./modules.scad>
 
 // example
 // spacer(3, 2, locking=true); // creates a 3x2 spacer with locking screw holes
-difference() {
-    union() {
-    spacer(1,1, locking=true);
-    //translate([centerpieceWidth(1)/2,wc_yPitch/2,0]) rotate([0,0,220]) translate([-100,-175,0]) import("/Users/bzvan/Documents/git/aderusha/DDD-Printable-Wall-Control-System/Centerpieces/Locking_spacer/8mm Lock Pin.stl", convexity=3);
-    }
-    //color("blue") translate([0,-EPS/2,-EPS]) cube([wc_yPitch,wc_yPitch/2+EPS,10]);
-}
 
 // a spacer / centerpiece
 module spacer(numX, numY, numZ=wc_spacerHeight, tabHeight=0, locking=false, customHoles=undef) {
