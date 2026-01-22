@@ -5,7 +5,13 @@ include<./modules.scad>
 
 // example
 // spacer(3, 2, locking=true); // creates a 3x2 spacer with locking screw holes
-spacer(1,1, locking=true);
+difference() {
+    union() {
+    spacer(1,1, locking=true);
+    //translate([centerpieceWidth(1)/2,wc_yPitch/2,0]) rotate([0,0,220]) translate([-100,-175,0]) import("/Users/bzvan/Documents/git/aderusha/DDD-Printable-Wall-Control-System/Centerpieces/Locking_spacer/8mm Lock Pin.stl", convexity=3);
+    }
+    //color("blue") translate([0,-EPS/2,-EPS]) cube([wc_yPitch,wc_yPitch/2+EPS,10]);
+}
 
 // a spacer / centerpiece
 module spacer(numX, numY, numZ=wc_spacerHeight, tabHeight=0, locking=false, customHoles=undef) {
@@ -34,7 +40,7 @@ module spacer(numX, numY, numZ=wc_spacerHeight, tabHeight=0, locking=false, cust
 module lockingHoles(numX, numY) {
     for(x=[0:numX-1]) {
         for(y=[0:numY-1]) {
-            translate([centerpieceWidth(1)/2-.25+x*wc_xPitch,.5*wc_yPitch+y*wc_yPitch,inchesToMM(1)+inchesToMM(1/4)-EPS])  lockingHole();
+            translate([centerpieceWidth(1)/2+x*wc_xPitch,.5*wc_yPitch+y*wc_yPitch,0]) lockingHole();
         }
     }
 }
@@ -42,14 +48,20 @@ module lockingHoles(numX, numY) {
 module customLockingHoles(customHoles) {
     for(i=[0:len(customHoles)-1]) {
         hole = customHoles[i];
-        translate([centerpieceWidth(1)/2-.25+hole.x*wc_xPitch,.5*wc_yPitch+hole.y*wc_yPitch,inchesToMM(1)+inchesToMM(1/4)-EPS])  lockingHole();
+        translate([centerpieceWidth(1)/2-.25+hole.x*wc_xPitch,.5*wc_yPitch+hole.y*wc_yPitch,0]) lockingHole();
     }
 }
 
 // threaded holes for inserting 8mm lock pins
 module lockingHole() {
+    threadLength = inchesToMM(1/4);
+    threadPitch = 2.5;
+    diameter=17.4;
+    holeLength = inchesToMM(1);
     // from rcolyer thread library. Fast but still a little chonky for a lot of holes
-    rotate([180,0,0]) RodStart(diameter=17, thread_len=inchesToMM(1/4), thread_diam=17, thread_pitch=2.5, height=inchesToMM(1));
+    //translate([0,0,holeLength+threadLength-EPS]) rotate([180,0,0]) RodStart(diameter=diameter, thread_len=threadLength, thread_diam=diameter, thread_pitch=threadPitch, height=inchesToMM(1));
+    translate([0,0,-EPS]) ScrewThread(outer_diam=diameter, height=threadLength, pitch=threadPitch, tooth_angle=31, tolerance=.4, tip_height=0, tooth_height=2, tip_min_fract=0);
+    translate([0,0,10+threadLength-2*EPS]) cylinder(d=diameter, h=20, center=true);
 }
 
 // --------
