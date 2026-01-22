@@ -1,22 +1,26 @@
 include<./modules.scad>
 
+wc_sidepieceTabFromTop = inchesToMM(3/32);
+wc_bracketWidth = inchesToMM(1/4);
+
 // example
 //sidepiece(numY=4, numZ=3, invert=false, side="right");
 
 // standard sidepiece/bracket
 // numY: distance out from wall
 // numZ: distance vertically on wall (will be rendered in x)
-module sidepiece(numY, numZ, bracket=true, invert=false, side="right") {
-    bracketWidth = inchesToMM(1/4);
-    difference() {
-        mirror([0,side == "left" ? 1 : 0,0]) union() {
-            wallControlHooks(numZ);
-            flat(numZ, bracket=bracket);
-            if (bracket) {
-                bracket(numY, numZ, invert=invert, bracketWidth=bracketWidth);
+module sidepiece(numY, numZ, bracket=true, invert=false, side="right", bracketWidth=wc_bracketWidth) {
+    mirror([0,side == "left" ? 1 : 0,0]) {
+        difference() {
+            union() {
+                wallControlHooks(numZ);
+                flat(numZ, bracket=bracket);
+                if (bracket) {
+                    bracket(numY, numZ, invert=invert, bracketWidth=bracketWidth);
+                }
             }
+            sideSlots(numZ);
         }
-        sideSlots(numZ);
     }
 }
     
@@ -31,7 +35,7 @@ module bracket(numY, numZ, bracketWidth, invert=false) {
                     [numZ*wc_zPitch, 0]
                 ]);
             }
-            firstSlotPosition = inchesToMM(3/32);
+            firstSlotPosition = wc_sidepieceTabFromTop;
             steps = (numZ*wc_zPitch)/wc_centerpieceZPitch;
             for(i=[0:steps]) { 
                 zPos = firstSlotPosition + (i*wc_centerpieceZPitch);
@@ -117,11 +121,11 @@ module wallControlHooks(numZ) {
     bottomOfHook = -3.1;
     slotConnectorHeight = 21.6;
 
-    translate([wc_zPitch*(numZ-1),0,0]) wallControlTopHook();
-    wallControlBottomHook();
+    translate([wc_zPitch*(numZ-1),0,0]) wallControlTopHook(slotWidth, bottomOfHook, backOfBoard, slotConnectorHeight);
+    wallControlBottomHook(slotWidth, bottomOfHook, backOfBoard, slotConnectorHeight);
 }
 
-module wallControlTopHook() {
+module wallControlTopHook(slotWidth, bottomOfHook, backOfBoard, slotConnectorHeight) {
     topOfHook = 31.8;
         difference() {
         // wall control top hook main geometry (much like botom hook)
@@ -149,7 +153,7 @@ module wallControlTopHook() {
     translate([0,-backOfBoard,0]) cube([slotConnectorHeight,2,slotWidth]); // connection from hook through wall control board
 }
 
-module wallControlBottomHook() {
+module wallControlBottomHook(slotWidth, bottomOfHook, backOfBoard, slotConnectorHeight) {
     topOfHook = 21.6;
     difference() {
         hull() {
@@ -165,18 +169,16 @@ module wallControlBottomHook() {
 }
 
 module sideSlots(numY, numZ=undef, zPos=0, zOffset=0) {
-    tabWidth = 9.8;
-    tabDepth = 3.9;
     fitSpace = .1;
     bufferZone = 5;
-    maxY = is_undef(numZ) ? round(1/0) : getYforX(numY, numZ, zPos+tabDepth, zOffset=zOffset);
+    maxY = is_undef(numZ) ? round(1/0) : getYforX(numY, numZ, zPos+wc_tabDepth, zOffset=zOffset);
     firstSlotPosition = 7.6;
 
-    // translate([maxY,-tabDepth,0]) cylinder(h=10, r=1); // uncomment to show calculated edge of triangle
+    // translate([maxY,-wc_tabDepth,0]) cylinder(h=10, r=1); // uncomment to show calculated edge of triangle
 
     for(i=[0:numY-1]) {
         yPos = firstSlotPosition+fitSpace+(i*wc_yPitch);
-        if (yPos+tabWidth+bufferZone < maxY) {
+        if (yPos+wc_tabWidth+bufferZone < maxY) {
             translate([yPos,-fitSpace,0]) rotate([0,-90,90]) tab(slot=true, fitSpace=fitSpace);
         }
     }

@@ -1,4 +1,6 @@
 include<./modules.scad>
+    
+wc_centerpieceFitSpaceY = 0.2;
 
 // --------
 // - spacer(numX, numY)                                             : a spacer with the given dimensions in wc_pitch units
@@ -8,10 +10,9 @@ include<./modules.scad>
 
 // a spacer / centerpiece
 module spacer(numX, numY, numZ=wc_spacerHeight, tabHeight=0, locking=false, customHoles=undef) {
-    centerpieceFitSpaceY = 0.2;
     difference() {
         union() {
-            cube([centerpieceWidth(numX), numY*wc_yPitch-centerpieceFitSpaceY, numZ*wc_zPitch]);
+            cube([centerpieceWidth(numX), numY*wc_yPitch-wc_centerpieceFitSpaceY, numZ*wc_zPitch]);
             translate([0,0,tabHeight]) centerpieceTabs(numX, numY);
         }
         if (customHoles) {

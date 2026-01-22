@@ -9,11 +9,15 @@ wc_zPitch = inchesToMM(1);
 
 // spacers have different heights and pitch
 wc_centerpieceZPitch = inchesToMM(1.65);
-wc_spacerHeight = 1/4;
+wc_spacerHeight = 1/4; // inches
 
 // some cylinders need to be fine to work
 wc_fa = 1;
 wc_fs = 0.4;
+
+wc_tabHeight = 3.9; // 0.15"
+wc_tabDepth = 3.9;
+wc_tabWidth = 9.8;
 
 // epsilon minimal size for hull points and overlaps
 EPS = .01;
@@ -34,10 +38,10 @@ module fineCylinder(h, r, fa=wc_fa, fs=wc_fs) {
 }
 
 // tabs, also used for slots
-module tab(tabDepth = 3.9,
+module tab(tabDepth = wc_tabDepth,
            tabTaper = .5,
-           tabHeight = 3.8, // 0.15"
-           tabWidth = 9.8,
+           tabHeight = wc_tabHeight,
+           tabWidth = wc_tabWidth,
            slot=false,
            fitSpace = 0) {
     fitSpace = slot ? fitSpace : 0;
