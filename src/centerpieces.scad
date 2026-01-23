@@ -77,8 +77,8 @@ module batteryToolSlot(width, depth, numZ) {
     height = numZ * wc_zPitch;
     bevel = 5;
     hull() {
-        translate([0,depth-width/2,0]) cylinder(r=width/2, h=height);
-        translate([-width/2,0,0]) cube([width,EPS,height]);
+        translate([0,depth-width/2,-EPS]) cylinder(r=width/2, h=height + 2*EPS);
+        translate([-width/2,-EPS,-EPS]) cube([width,EPS,height + 2*EPS]);
     }
     translate([-width/2,0,height]) rotate([-90,0,0]) linear_extrude(depth-width/2) batteryToolSlotBevel(numZ=numZ, bevel=5);
     translate([width/2,0,height]) rotate([-90,0,0]) linear_extrude(depth-width/2) batteryToolSlotBevel(numZ=numZ, bevel=5);

@@ -26,18 +26,19 @@ tabOffset = .5; // raise tabs to center on spacer to match top position
 
 preview = true;
 parts = true;
+printAll = true;
 // orient for preview image
 rotate([0,0,preview ? 180 : 0]) {
     // renders just the sidepiece
     ryobiDualBatteryHolder(numX=centerpiece_numX, numY=centerpiece_numY, spacerThickness=spacerThickness);
 
     // renders full parts list in place
-    if (preview) { parts(); }
+    if (parts) { parts(forPrinting = printAll); }
 }
 
-module parts() {
-    color("grey") sidepiece(numY=sidepiece_numY,numZ=sidepiece_numZ, vertical=true, place=[0,0,0]);
-    color("grey") sidepiece(numY=sidepiece_numY,numZ=sidepiece_numZ, side="left", vertical="true", place=[centerpiece_numX,0,0]);
+module parts(forPrinting) {
+    color("grey") sidepiece(numY=sidepiece_numY,numZ=sidepiece_numZ, vertical=true, place=[forPrinting ? -1 : 0, 0, 0]);
+    color("grey") sidepiece(numY=sidepiece_numY,numZ=sidepiece_numZ, side="left", vertical="true", place=[centerpiece_numX + (forPrinting ? 1 : 0), 0, 0]);
     color("white") spacer(numX=centerpiece_numX,numY=2, locking=true, vertical=true, place=[0,0,-1]);
 }
 

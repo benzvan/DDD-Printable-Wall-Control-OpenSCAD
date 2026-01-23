@@ -12,13 +12,14 @@ sidepiece_numZ = 4;   // height of bracket
 
 preview = true;
 parts = true;
+printAll = true;
 // orient for preview image
 rotate([0,0,0]) {
     // renders just the sidepiece
     grinderHanger(numX = centerpiece_numX, numY = centerpiece_numY, tabHeight = centerpiece_tabHeight);
 
     // renders full parts list in place
-    if (preview) { translate([0,0,centerpiece_tabHeight]) mirror([0,1,0]) parts(); }
+    if (parts) { translate([0,0,centerpiece_tabHeight]) mirror([0,1,0]) parts(forPrint = printAll); }
 }
 
 // holder for a rigid angle grinder based on Oclure's tool holders
@@ -31,8 +32,8 @@ module grinderHanger(numX, numY, mmHeight=30, tabHeight) {
     }
 }
 
-module parts() {
-    color("grey") sidepiece(numY=sidepiece_numY,numZ=sidepiece_numZ, vertical=true, place=[0,-sidepiece_numY,0]);
-    color("grey") sidepiece(numY=sidepiece_numY,numZ=sidepiece_numZ, side="left", vertical="true", place=[centerpiece_numX,-sidepiece_numY,0]);
+module parts(forPrint) {
+    color("grey") sidepiece(numY=sidepiece_numY,numZ=sidepiece_numZ, vertical=true, place=[(forPrint ? -1 : 0),-sidepiece_numY,0]);
+    color("grey") sidepiece(numY=sidepiece_numY,numZ=sidepiece_numZ, side="left", vertical="true", place=[centerpiece_numX + (forPrint ? 1 : 0),-sidepiece_numY,0]);
     color("white") spacer(numX=centerpiece_numX,numY=2, locking=true, vertical=true, place=[0,-sidepiece_numY,-1]);
 }
