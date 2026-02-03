@@ -4,13 +4,21 @@ wc_sidepieceTabFromTop = inchesToMM(3/32);
 wc_bracketWidth = inchesToMM(1/4);
 
 // example
-//sidepiece(numY=4, numZ=4, invert=true, side="right");
+//sidepiece(numY=4, numZ=4, invert=true, side="right", hook=true);
 
 // standard sidepiece/bracket
-// numY: distance out from wall
-// numZ: distance vertically on wall (will be rendered in x)
-module sidepiece(numY, numZ, bracket=true, invert=false, side="right", bracketWidth=wc_bracketWidth, vertical=false, horizontal=false, place=undef) {
-    bracketXRotation = 00;
+// numY          int: distance in wc grid units out from wall
+// numZ          int: distance in wc grid units vertically on wall (will be rendered in x)
+// bracket      bool: will add a bracket if true, will be a flat if false
+// invert       bool: default orientation is with the flat on top of the bracket, switch to true to put the supports on top.
+// side "right|left": which side sidepiece is this?
+// bracketWidth   mm: width of the bracket, defaults to 1/4 inch (wc_bracketWidth)
+// vertical     bool: primarily for previews. default is to position the bracket for printing; true will position the bracket vertically as if it was mounted
+// hook         bool: true will add a small bump at the end of the sidepiece for use as a hook
+// place      vector: location in wc grid units to place the sidepiece. useful for previews and model visualization
+
+module sidepiece(numY, numZ, bracket=true, invert=false, side="right", bracketWidth=wc_bracketWidth, vertical=false, horizontal=false, hook=false, place=undef) {
+    bracketXRotation = 0;
     bracketYRotation = vertical ? -90 : 0;
     bracketZRotation = vertical && side == "left" ? 180 : 0;
 
@@ -22,7 +30,7 @@ module sidepiece(numY, numZ, bracket=true, invert=false, side="right", bracketWi
     yRotation = bracket ? bracketYRotation : flatYRotation;
     zRotation = bracket ? bracketZRotation : flatZRotation;
 
-    bracketXPlacement = place == undef ? 0 : ( side == "right" ? place.x * wc_xPitch - wc_centerpieceFitSpaceY : centerpieceWidth( place.x ) ) + ( side == "right" ? 0 : wc_centerpieceFitSpaceY) ;
+    bracketXPlacement = place == undef ? 0 : ( side == "right" ? place.x * wc_xPitch - wc_centerpieceFitSpaceY : centerpieceWidth( place.x ) ) + ( side == "right" ? 0 : wc_centerpieceFitSpaceY ) ;
     bracketYPlacement = place == undef ? 0 : place.y * wc_yPitch;
     bracketZPlacement = place == undef ? 0 : ( place.z - numZ ) * wc_zPitch  + ( invert ? -0 : wc_bracketWidth );
 
@@ -30,7 +38,7 @@ module sidepiece(numY, numZ, bracket=true, invert=false, side="right", bracketWi
     baseFlatYPlacement = 0;
     baseFlatZPlacement = wc_tabHeight;
 
-    flatXPlacement = place == undef ? baseFlatXPlacement : ( side == "left" ? place.x * wc_xPitch - wc_centerpieceFitSpaceY : centerpieceWidth( place.x ) ) + ( side == "left" ? 0 : wc_centerpieceFitSpaceY) ;
+    flatXPlacement = place == undef ? baseFlatXPlacement : ( side == "left" ? place.x * wc_xPitch - wc_centerpieceFitSpaceY : centerpieceWidth( place.x ) ) + ( side == "left" ? 0 : wc_centerpieceFitSpaceY ) ;
     flatYPlacement = place == undef ? baseFlatYPlacement : place.y * wc_yPitch;
     flatZPlacement = place == undef ? baseFlatZPlacement : baseFlatZPlacement + place.z * wc_zPitch;
 
@@ -48,7 +56,7 @@ module sidepiece(numY, numZ, bracket=true, invert=false, side="right", bracketWi
                         wallControlHooks(numZ);
                         flat(numZ, bracket=bracket);
                         if (bracket) {
-                            bracket(numY, numZ, invert=invert, bracketWidth=bracketWidth);
+                            bracket(numY, numZ, invert=invert, bracketWidth=bracketWidth, hook=hook);
                         }
                     }
                     sideSlots(numZ);
@@ -58,9 +66,11 @@ module sidepiece(numY, numZ, bracket=true, invert=false, side="right", bracketWi
     }
 }
     
-module bracket(numY, numZ, bracketWidth, invert=false) {
+module bracket(numY, numZ, bracketWidth, invert=false, hook=false) {
+    // main
     translate([invert ? 0 : numZ*wc_zPitch,0,0]) mirror([invert ? 0: 1,0,0]) union() {
         difference() {
+            union() {
             linear_extrude(h=bracketWidth) {
                 polygon([
                     [0,0],
@@ -69,12 +79,20 @@ module bracket(numY, numZ, bracketWidth, invert=false) {
                     [numZ*wc_zPitch, 0]
                 ]);
             }
+            if (hook) {
+                translate([0,( numY * wc_yPitch ) - ( bracketWidth / 2 ),0]) fineCylinder(r=bracketWidth/2, h=bracketWidth);
+            }
+            }
+
+            // slots
             firstSlotPosition = wc_sidepieceTabFromTop;
             steps = (numZ*wc_zPitch)/wc_centerpieceZPitch;
             for(i=[0:steps-1]) { 
                 zPos = firstSlotPosition + (i*wc_centerpieceZPitch);
                 translate([zPos,0,0]) rotate([0,0,90]) sideSlots(numY=numY, numZ=numZ, zPos=zPos, zOffset=bracketWidth);
             }
+
+            // holes
             for(i=[0:steps-1]) {
                 zPos = i*wc_centerpieceZPitch+wc_zPitch;
                 translate([zPos,0,0]) bracketHoles(numY=numY, numZ=numZ, zPos=zPos, zOffset=bracketWidth);
@@ -177,7 +195,8 @@ module flat(numZ, bracket=true) {
     }
 }
 
-// could be a public module in case people want to add them to other objects
+// hooks for wall control. Can be added to any custom object. designed to add to sidepieces.
+// will space vertically according to numZ
 module wallControlHooks(numZ) {
     slotWidth = inchesToMM(3/32)-.3;
     slotThickness = 1.4;
@@ -191,6 +210,7 @@ module wallControlHooks(numZ) {
     wallControlBottomHook(slotWidth, bottomOfHook, backOfBoard, slotConnectorHeight);
 }
 
+// top hook only
 module wallControlTopHook(slotWidth, bottomOfHook, backOfBoard, slotConnectorHeight) {
     topOfHook = 31.8;
         difference() {
@@ -219,6 +239,7 @@ module wallControlTopHook(slotWidth, bottomOfHook, backOfBoard, slotConnectorHei
     translate([0,-backOfBoard,0]) cube([slotConnectorHeight,2,slotWidth]); // connection from hook through wall control board
 }
 
+// bottom hook only
 module wallControlBottomHook(slotWidth, bottomOfHook, backOfBoard, slotConnectorHeight) {
     topOfHook = 21.6;
     difference() {
@@ -234,6 +255,7 @@ module wallControlBottomHook(slotWidth, bottomOfHook, backOfBoard, slotConnector
     translate([0,-backOfBoard,0]) cube([slotConnectorHeight,2,slotWidth]); // connection from hook through wall control board
 }
 
+// slots for centerpieces. used for both horizontal and vertical strips of slots.
 module sideSlots(numY, numZ=undef, zPos=0, zOffset=0) {
     fitSpace = .1;
     bufferZone = 5;

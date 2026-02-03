@@ -22,10 +22,16 @@ wc_tabWidth = 9.8;
 // epsilon minimal size for hull points and overlaps
 EPS = .01;
 
+// --------
+// common shapes used throughout
+// --------
+
+// external filet with default size
 module externalFiletCylinder(h=0, r=4) {
     fineCylinder(h=h, r=r);
 }
 
+// internal filet to avoid rewriting this difference constantly
 module internalFilet(h, r) {
     difference() {
         cube([r,r,h]);
@@ -33,6 +39,7 @@ module internalFilet(h, r) {
     }
 }
 
+// overrides existing quality for cylinder shapes
 module fineCylinder(h, r, fa=wc_fa, fs=wc_fs) {
     cylinder(h=h, r=r, $fa=fa, $fs=fs);
 }
