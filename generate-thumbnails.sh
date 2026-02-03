@@ -31,8 +31,14 @@ for model in examples/*.scad
 do
   filename=$(basename "$model")
   modelname="${filename%.*}"
+
+  echo "Generating thumbnail for $modelname"
   openscad -o "thumbnails/$modelname.png" --imgsize=640,480 "examples/$filename"
+
+  echo "Generating stl for $modelname"
   openscad -o "examples/$modelname.stl" "examples/$filename"
+
+  echo "Adding $modelname to $readme"
   echo "### $modelname" >> "$readme"
   echo "![$modelname](../thumbnails/$(urlencode_grouped_case "$modelname.png"))" >> "$readme"
   echo "" >> "$readme"
