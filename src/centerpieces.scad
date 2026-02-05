@@ -9,7 +9,7 @@ wc_centerpieceFitSpaceY = 0.2;
 // spacer(3, 2, locking=true); // creates a 3x2 spacer with locking screw holes
 
 // a spacer / centerpiece
-module spacer(numX, numY, numZ=wc_spacerHeight, tabHeight=0, locking=false, customHoles=undef, vertical=false, place=undef) {
+module spacer(numX, numY, numZ=wc_spacerHeight, tabHeight=0, locking=false, customHoles=undef, vertical=false, oneSide=false, place=undef) {
     xPlacement = place == undef ? 0 : place.x * wc_xPitch;
     yPlacement = place == undef ? 0 : place.y * wc_yPitch;
     zPlacement = ( place == undef ? 0 : place.z * wc_zPitch ) - ( vertical ? numY * wc_zPitch : 0 );
@@ -19,8 +19,8 @@ module spacer(numX, numY, numZ=wc_spacerHeight, tabHeight=0, locking=false, cust
     translate([xPlacement, yPlacement, zPlacement]) {
         rotate([xRotation,0,0]) difference() {
             union() {
-                cube([centerpieceWidth(numX), numY*wc_yPitch-wc_centerpieceFitSpaceY, numZ*wc_zPitch]);
-                translate([0,0,tabHeight]) centerpieceTabs(numX, numY);
+                spacerBlock(numX, numY, numZ, oneSide=oneSide);
+                translate([0,0,tabHeight]) centerpieceTabs(numX, numY, oneSide=oneSide);
             }
             if (customHoles) {
                 customLockingHoles(customHoles);
@@ -31,10 +31,28 @@ module spacer(numX, numY, numZ=wc_spacerHeight, tabHeight=0, locking=false, cust
     }
 }
 
+module spacerBlock(numX, numY, numZ, oneSide) {
+    totalXmm = centerpieceWidth(numX);
+    totalYmm = numY * wc_yPitch - wc_centerpieceFitSpaceY;
+    totalZmm = numZ * wc_zPitch;
+    if (oneSide) {
+        filletR = totalZmm/2;
+        hull() {
+            cube([EPS, totalYmm, totalZmm]);
+            translate([totalXmm-filletR,filletR,0]) fineCylinder(r=filletR, h=totalZmm);
+            translate([totalXmm-filletR,totalYmm-filletR,0]) fineCylinder(r=filletR, h=totalZmm);
+        }
+    } else {
+        cube([centerpieceWidth(numX), totalYmm, totalZmm]);
+    }
+}
+
 // generates tabs for left and right of centerpice
-module centerpieceTabs(numX, numY) {
+module centerpieceTabs(numX, numY, oneSide=false) {
     for(i=[0:numY-1]) {
-        translate([centerpieceWidth(numX),(i*wc_yPitch)+7.55,0]) tab();
+        if (!oneSide) {
+            translate([centerpieceWidth(numX),(i*wc_yPitch)+7.55,0]) tab();
+        }
         translate([0,(i*wc_yPitch)+7.55,0]) mirror([1,0,0]) tab();
     }
 }

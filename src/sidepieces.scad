@@ -204,16 +204,16 @@ module uHook(numY, numZ, hookWidth) {
 
     difference() {
         hookProfile(hookX, hookY, hookWidth);
-        translate([-EPS,0,-EPS]) hookProfile(hookX-hookThickness+EPS, hookY-hookWidth, hookWidth + 2*EPS, outside=false);
+        translate([hookThickness+EPS,0,-EPS]) hookProfile(hookX-hookThickness+EPS, hookY-hookWidth, hookWidth + 2*EPS, outside=false);
     }
-    translate([0,hookY-hookWidth/2,0]) fineCylinder(h=hookWidth, r=hookWidth/2);
+    translate([hookX,hookY-hookWidth/2,0]) fineCylinder(h=hookWidth, r=hookWidth/2);
 
     module hookProfile(hookX, hookY, hookWidth, outside=true) {
                 if (outside) {
-                    cube([hookX, hookY/2, hookWidth]);
+                    cube([hookX/2, hookY/2, hookWidth]);
                 }
-                cube([hookX/2, hookY, hookWidth]);
-                translate([hookX/2,hookY/2,0]) fineCylinder(h=hookWidth, r=hookY/2);
+                translate([hookX/2,0,0]) cube([hookX/2, hookY, hookWidth]);
+                translate([hookX/2,hookY/2,0]) resize([hookX, hookY, hookWidth]) fineCylinder(h=hookWidth, r=hookY/2);
 
     }
 }
