@@ -37,9 +37,9 @@ rotate([0,0,preview ? 180 : 0]) {
 }
 
 module parts(forPrinting) {
-    color("grey") sidepiece(numY=sidepiece_numY,numZ=sidepiece_numZ, vertical=true, place=[forPrinting ? -1 : 0, 0, 0]);
-    color("grey") sidepiece(numY=sidepiece_numY,numZ=sidepiece_numZ, side="left", vertical="true", place=[centerpiece_numX + (forPrinting ? 1 : 0), 0, 0]);
-    color("white") spacer(numX=centerpiece_numX,numY=2, locking=true, vertical=true, place=[0,0,-1]);
+    color("grey") sidepiece(numY=sidepiece_numY, numZ=sidepiece_numZ, type=BRACKET, vertical=true, place=[forPrinting ? -1 : 0, 0, 0]);
+    color("grey") sidepiece(numY=sidepiece_numY, numZ=sidepiece_numZ, type=BRACKET, side=LEFT, vertical=true, place=[centerpiece_numX + (forPrinting ? 1 : 0), 0, 0]);
+    color("white") spacer(numX=centerpiece_numX, numY=2, locking=true, vertical=true, place=[0,0,-1]);
 }
 
 module ryobiDualBatteryHolder(numX, numY, spacerThickness) {

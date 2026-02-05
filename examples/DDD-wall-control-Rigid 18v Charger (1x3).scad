@@ -31,6 +31,6 @@ module RigidCharger(numX, numY, pegSpace) {
 }
 
 module parts() {
-    color("grey") sidepiece(numY=1, numZ=centerpiece_numY, bracket=false, side="right", place=[1,0,0]);
-    color("grey") sidepiece(numY=1, numZ=centerpiece_numY, bracket=false, side="left");
+    color("grey") sidepiece(numY=1, numZ=centerpiece_numY, type=FLAT, side=RIGHT, place=[1,0,0]);
+    color("grey") sidepiece(numY=1, numZ=centerpiece_numY, type=FLAT, side=LEFT);
 }

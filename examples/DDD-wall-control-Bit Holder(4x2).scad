@@ -56,7 +56,7 @@ module bitSteps(numX, numY, stepDepth, stepCount, bitCount) {
 }
 
 module parts() {
-    color("grey") sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, invert=true, vertical=true, place=[0,-sidepiece_yCount,sidepiece_zCount]);
-    color("grey") sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, invert=true, side="left", vertical="true", place=[centerpiece_xCount,-sidepiece_yCount,sidepiece_zCount]);
+    color("grey") sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, type=BRACKET, invert=true, vertical=true, place=[0,-sidepiece_yCount,sidepiece_zCount]);
+    color("grey") sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, type=BRACKET, invert=true, side=LEFT, vertical=true, place=[centerpiece_xCount,-sidepiece_yCount,sidepiece_zCount]);
     color("white") spacer(numX=centerpiece_xCount,numY=1, locking=true, vertical=true, place=[0,-sidepiece_yCount,sidepiece_zCount]);
 }

@@ -3,34 +3,48 @@ include<./modules.scad>
 wc_sidepieceTabFromTop = inchesToMM(3/32);
 wc_bracketWidth = inchesToMM(1/4);
 
+// sidepiece types
+FLAT = "flat";
+BRACKET = "bracket";
+UHOOK = "uhook";
+
+// sidepiece sides
+LEFT = "left";
+RIGHT = "right";
+
 // example
-//sidepiece(numY=4, numZ=4, invert=true, side="right", hook=true);
+//sidepiece(numY=4, numZ=4, type=BRACKET, invert=true, side="right");
 
+/*
 // standard sidepiece/bracket
-// numY          int: distance in wc grid units out from wall
-// numZ          int: distance in wc grid units vertically on wall (will be rendered in x)
-// bracket      bool: will add a bracket if true, will be a flat if false
-// invert       bool: default orientation is with the flat on top of the bracket, switch to true to put the supports on top.
-// side "right|left": which side sidepiece is this?
-// bracketWidth   mm: width of the bracket, defaults to 1/4 inch (wc_bracketWidth)
-// vertical     bool: primarily for previews. default is to position the bracket for printing; true will position the bracket vertically as if it was mounted
-// hook         bool: true will add a small bump at the end of the sidepiece for use as a hook
-// place      vector: location in wc grid units to place the sidepiece. useful for previews and model visualization
+numY                      int: distance in wc grid units out from wall
+numZ                      int: distance in wc grid units vertically on wall (will be rendered in x)
+type                   string: "flat | bracket | uhook" type of siedpiece: "flat" is against the board, "bracket" supports centerpieces, "uhook" is a deep hook in comparison to the bracket's tipHook option
+invert                   bool: default orientation is with the flat on top of the bracket, switch to true to put the supports on top.
+side                   string: "right | left" which side sidepiece is this?
+bracketWidth               mm: width of the bracket, defaults to 1/4 inch (wc_bracketWidth)
+vertical                 bool: primarily for previews. default is to position the bracket for printing; true will position the bracket vertically as if it was mounted
+tipHook                  bool: true will add a small bump at the end of the sidepiece for use as a tipHook
+place                  vector: location in wc grid units to place the sidepiece. useful for previews and model visualization
+*/
 
-module sidepiece(numY, numZ, bracket=true, invert=false, side="right", bracketWidth=wc_bracketWidth, vertical=false, horizontal=false, hook=false, place=undef) {
+module sidepiece(numY, numZ, type=BRACKET, invert=false, side=RIGHT, bracketWidth=wc_bracketWidth, vertical=false, horizontal=false, tipHook=false, place=undef) {
+    bracket = (type == BRACKET);
+    uHook = (type == UHOOK);
+
     bracketXRotation = 0;
     bracketYRotation = vertical ? -90 : 0;
-    bracketZRotation = vertical && side == "left" ? 180 : 0;
+    bracketZRotation = vertical && side == LEFT ? 180 : 0;
 
-    flatXRotation = side == "right" ? 90 : -90;
+    flatXRotation = side == RIGHT ? 90 : -90;
     flatYRotation = 0;
     flatZRotation = 90;
 
-    xRotation = bracket ? bracketXRotation : flatXRotation;
-    yRotation = bracket ? bracketYRotation : flatYRotation;
-    zRotation = bracket ? bracketZRotation : flatZRotation;
+    xRotation = ( bracket || uHook ) ? bracketXRotation : flatXRotation;
+    yRotation = ( bracket || uHook ) ? bracketYRotation : flatYRotation;
+    zRotation = ( bracket || uHook ) ? bracketZRotation : flatZRotation;
 
-    bracketXPlacement = place == undef ? 0 : ( side == "right" ? place.x * wc_xPitch - wc_centerpieceFitSpaceY : centerpieceWidth( place.x ) ) + ( side == "right" ? 0 : wc_centerpieceFitSpaceY ) ;
+    bracketXPlacement = place == undef ? 0 : ( side == RIGHT ? place.x * wc_xPitch - wc_centerpieceFitSpaceY : centerpieceWidth( place.x ) ) + ( side == RIGHT ? 0 : wc_centerpieceFitSpaceY ) ;
     bracketYPlacement = place == undef ? 0 : place.y * wc_yPitch;
     bracketZPlacement = place == undef ? 0 : ( place.z - numZ ) * wc_zPitch  + ( invert ? -0 : wc_bracketWidth );
 
@@ -38,15 +52,15 @@ module sidepiece(numY, numZ, bracket=true, invert=false, side="right", bracketWi
     baseFlatYPlacement = 0;
     baseFlatZPlacement = wc_tabHeight;
 
-    flatXPlacement = place == undef ? baseFlatXPlacement : ( side == "left" ? place.x * wc_xPitch - wc_centerpieceFitSpaceY : centerpieceWidth( place.x ) ) + ( side == "left" ? 0 : wc_centerpieceFitSpaceY ) ;
+    flatXPlacement = place == undef ? baseFlatXPlacement : ( side == LEFT ? place.x * wc_xPitch - wc_centerpieceFitSpaceY : centerpieceWidth( place.x ) ) + ( side == LEFT ? 0 : wc_centerpieceFitSpaceY ) ;
     flatYPlacement = place == undef ? baseFlatYPlacement : place.y * wc_yPitch;
     flatZPlacement = place == undef ? baseFlatZPlacement : baseFlatZPlacement + place.z * wc_zPitch;
 
-    xPlacement = bracket ? bracketXPlacement : flatXPlacement;
-    yPlacement = bracket ? bracketYPlacement : flatYPlacement;
-    zPlacement = bracket ? bracketZPlacement : flatZPlacement;
+    xPlacement = ( bracket || uHook ) ? bracketXPlacement : flatXPlacement;
+    yPlacement = ( bracket || uHook ) ? bracketYPlacement : flatYPlacement;
+    zPlacement = ( bracket || uHook ) ? bracketZPlacement : flatZPlacement;
 
-    mirrorY = side == "left" ? 1 : 0;
+    mirrorY = side == LEFT ? 1 : 0;
 
     translate([ xPlacement, yPlacement, zPlacement ]) {
         rotate([ xRotation, yRotation, zRotation ]) { 
@@ -56,7 +70,9 @@ module sidepiece(numY, numZ, bracket=true, invert=false, side="right", bracketWi
                         wallControlHooks(numZ);
                         flat(numZ, bracket=bracket);
                         if (bracket) {
-                            bracket(numY, numZ, invert=invert, bracketWidth=bracketWidth, hook=hook);
+                            bracket(numY, numZ, invert=invert, bracketWidth=bracketWidth, tipHook=tipHook);
+                        } else if (uHook) {
+                            uHook(numY, numZ, bracketWidth);
                         }
                     }
                     sideSlots(numZ);
@@ -66,34 +82,34 @@ module sidepiece(numY, numZ, bracket=true, invert=false, side="right", bracketWi
     }
 }
     
-module bracket(numY, numZ, bracketWidth, invert=false, hook=false) {
+module bracket(numY, numZ, bracketWidth, invert=false, tipHook=false) {
     // main
     translate([invert ? 0 : numZ*wc_zPitch,0,0]) mirror([invert ? 0: 1,0,0]) union() {
         difference() {
             union() {
-            linear_extrude(h=bracketWidth) {
-                polygon([
-                    [0,0],
-                    [0,numY*wc_yPitch],
-                    [bracketWidth, numY*wc_yPitch], // the blunt end is square
-                    [numZ*wc_zPitch, 0]
-                ]);
-            }
-            if (hook) {
-                translate([0,( numY * wc_yPitch ) - ( bracketWidth / 2 ),0]) fineCylinder(r=bracketWidth/2, h=bracketWidth);
-            }
+                linear_extrude(h=bracketWidth) {
+                    polygon([
+                        [0,0],
+                        [0,numY*wc_yPitch],
+                        [bracketWidth, numY*wc_yPitch], // the blunt end is square
+                        [numZ*wc_zPitch, 0]
+                    ]);
+                }
+                if (tipHook) {
+                    translate([0,( numY * wc_yPitch ) - ( bracketWidth / 2 ),0]) fineCylinder(r=bracketWidth/2, h=bracketWidth);
+                }
             }
 
+            shelfSteps = (numZ*wc_zPitch)/wc_centerpieceZPitch;
             // slots
             firstSlotPosition = wc_sidepieceTabFromTop;
-            steps = (numZ*wc_zPitch)/wc_centerpieceZPitch;
-            for(i=[0:steps-1]) { 
+            for(i=[0:shelfSteps-1]) { 
                 zPos = firstSlotPosition + (i*wc_centerpieceZPitch);
                 translate([zPos,0,0]) rotate([0,0,90]) sideSlots(numY=numY, numZ=numZ, zPos=zPos, zOffset=bracketWidth);
             }
 
             // holes
-            for(i=[0:steps-1]) {
+            for(i=[0:shelfSteps-1]) {
                 zPos = i*wc_centerpieceZPitch+wc_zPitch;
                 translate([zPos,0,0]) bracketHoles(numY=numY, numZ=numZ, zPos=zPos, zOffset=bracketWidth);
             }
@@ -178,6 +194,27 @@ module bracket(numY, numZ, bracketWidth, invert=false, hook=false) {
             translate([0,0,f+EPS]) body(r, h, f);
             translate([0,0,-EPS]) face(r, h, f);
         }
+    }
+}
+
+module uHook(numY, numZ, hookWidth) {
+    hookY = numY * wc_yPitch;
+    hookX = numZ * wc_zPitch;
+    hookThickness = hookWidth * numY;
+
+    difference() {
+        hookProfile(hookX, hookY, hookWidth);
+        translate([-EPS,0,-EPS]) hookProfile(hookX-hookThickness+EPS, hookY-hookWidth, hookWidth + 2*EPS, outside=false);
+    }
+    translate([0,hookY-hookWidth/2,0]) fineCylinder(h=hookWidth, r=hookWidth/2);
+
+    module hookProfile(hookX, hookY, hookWidth, outside=true) {
+                if (outside) {
+                    cube([hookX, hookY/2, hookWidth]);
+                }
+                cube([hookX/2, hookY, hookWidth]);
+                translate([hookX/2,hookY/2,0]) fineCylinder(h=hookWidth, r=hookY/2);
+
     }
 }
 
