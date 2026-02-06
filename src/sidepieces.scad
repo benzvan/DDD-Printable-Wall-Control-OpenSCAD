@@ -7,6 +7,7 @@ wc_bracketWidth = inchesToMM(1/4);
 FLAT = "flat";
 BRACKET = "bracket";
 UHOOK = "uhook";
+CABLE_GUIDE = "cable_guide";
 
 // sidepiece sides
 LEFT = "left";
@@ -29,8 +30,12 @@ place                  vector: location in wc grid units to place the sidepiece.
 */
 
 module sidepiece(numY, numZ, type=BRACKET, invert=false, side=RIGHT, bracketWidth=wc_bracketWidth, vertical=false, horizontal=false, tipHook=false, place=undef) {
+    assert(numY > 0, "Y dimension (vertical) must be greater than zero");
+    assert(numZ > 0, "Z dimension (out from wall) must be greater than zero");
+
     bracket = (type == BRACKET);
     uHook = (type == UHOOK);
+    cable_guide = (type == CABLE_GUIDE);
 
     bracketXRotation = 0;
     bracketYRotation = vertical ? -90 : 0;
@@ -40,9 +45,9 @@ module sidepiece(numY, numZ, type=BRACKET, invert=false, side=RIGHT, bracketWidt
     flatYRotation = 0;
     flatZRotation = 90;
 
-    xRotation = ( bracket || uHook ) ? bracketXRotation : flatXRotation;
-    yRotation = ( bracket || uHook ) ? bracketYRotation : flatYRotation;
-    zRotation = ( bracket || uHook ) ? bracketZRotation : flatZRotation;
+    xRotation = ( bracket || uHook || cable_guide ) ? bracketXRotation : flatXRotation;
+    yRotation = ( bracket || uHook || cable_guide ) ? bracketYRotation : flatYRotation;
+    zRotation = ( bracket || uHook || cable_guide ) ? bracketZRotation : flatZRotation;
 
     bracketXPlacement = place == undef ? 0 : ( side == RIGHT ? place.x * wc_xPitch - wc_centerpieceFitSpaceY : centerpieceWidth( place.x ) ) + ( side == RIGHT ? 0 : wc_centerpieceFitSpaceY ) ;
     bracketYPlacement = place == undef ? 0 : place.y * wc_yPitch;
@@ -56,9 +61,9 @@ module sidepiece(numY, numZ, type=BRACKET, invert=false, side=RIGHT, bracketWidt
     flatYPlacement = place == undef ? baseFlatYPlacement : place.y * wc_yPitch;
     flatZPlacement = place == undef ? baseFlatZPlacement : baseFlatZPlacement + place.z * wc_zPitch;
 
-    xPlacement = ( bracket || uHook ) ? bracketXPlacement : flatXPlacement;
-    yPlacement = ( bracket || uHook ) ? bracketYPlacement : flatYPlacement;
-    zPlacement = ( bracket || uHook ) ? bracketZPlacement : flatZPlacement;
+    xPlacement = ( bracket || uHook || cable_guide ) ? bracketXPlacement : flatXPlacement;
+    yPlacement = ( bracket || uHook || cable_guide ) ? bracketYPlacement : flatYPlacement;
+    zPlacement = ( bracket || uHook || cable_guide ) ? bracketZPlacement : flatZPlacement;
 
     mirrorY = side == LEFT ? 1 : 0;
 
@@ -73,6 +78,8 @@ module sidepiece(numY, numZ, type=BRACKET, invert=false, side=RIGHT, bracketWidt
                             bracket(numY, numZ, invert=invert, bracketWidth=bracketWidth, tipHook=tipHook);
                         } else if (uHook) {
                             uHook(numY, numZ, bracketWidth);
+                        } else if (cable_guide) {
+                            cable_guide(numY, numZ, bracketWidth);
                         }
                     }
                     sideSlots(numZ);
@@ -214,6 +221,38 @@ module uHook(numY, numZ, hookWidth) {
                 }
                 translate([hookX/2,0,0]) cube([hookX/2, hookY, hookWidth]);
                 translate([hookX/2,hookY/2,0]) resize([hookX, hookY, hookWidth]) fineCylinder(h=hookWidth, r=hookY/2);
+
+    }
+}
+
+module cable_guide(numY, numZ, guideWidth) {
+    mmY = numY * wc_yPitch;
+    mmX = numZ * wc_zPitch;
+    OR = max(mmX, mmY)/2;
+    gapWidth = 40;
+    gapPos = -80;
+    guideThickness = numY * (guideWidth/2);
+
+    translate([mmX/2,mmY/2,0]) linear_extrude(h=guideWidth) {
+        resize([mmX, mmY]) {
+            difference() {
+                hull() {
+                    fineCircle(r=OR);
+                    translate([-OR,-OR,0]) square(EPS);
+                }
+                fineCircle(r = OR-guideThickness);
+                rotate([0,0,gapPos]) arc(angle=gapWidth, IR=0, OR=2*OR);
+            }
+            rotate([0,0,gapPos]) translate([OR-guideThickness/2,0]) fineCircle(r=guideThickness/2);
+            rotate([0,0,gapPos+gapWidth]) translate([OR-guideThickness/2,0]) fineCircle(r=guideThickness/2);
+        }
+    }
+
+    module arc(angle, IR, OR) {
+        hull() {
+            square([OR-IR, EPS]);
+            rotate([0,0,angle]) square([OR-IR, EPS]);
+        }
 
     }
 }

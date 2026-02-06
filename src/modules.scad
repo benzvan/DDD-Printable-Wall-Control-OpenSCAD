@@ -44,6 +44,11 @@ module fineCylinder(h, r, fa=wc_fa, fs=wc_fs) {
     cylinder(h=h, r=r, $fa=fa, $fs=fs);
 }
 
+// overrides existing quality for circles
+module fineCircle(r, fa=wc_fa, fs=wc_fs) {
+    circle(r=r, $fa=fa, $fs=fs);
+}
+
 // tabs, also used for slots
 module tab(tabDepth = wc_tabDepth,
            tabTaper = .5,

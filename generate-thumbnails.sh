@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 readme="examples/README.md"
 
@@ -25,21 +25,27 @@ urlencode_grouped_case () {
   printf "$format\\n" "$@"
 }
 
-echo "# Example Index" > "$readme"
-echo "" >> "$readme"
+{ echo "# Example Index"; echo; } > "$readme"
 for model in examples/*.scad
 do
   filename=$(basename "$model")
   modelname="${filename%.*}"
 
-  echo "Generating thumbnail for $modelname"
+  echo "********************"
+  echo "${modelname}"
+  echo "Generating thumbnail"
   openscad -o "thumbnails/$modelname.png" --imgsize=640,480 "examples/$filename"
+  echo
 
-  echo "Generating stl for $modelname"
+  echo "Generating stl for"
   openscad -o "examples/$modelname.stl" "examples/$filename"
+  echo
 
-  echo "Adding $modelname to $readme"
-  echo "### $modelname" >> "$readme"
-  echo "![$modelname](../thumbnails/$(urlencode_grouped_case "$modelname.png"))" >> "$readme"
-  echo "" >> "$readme"
+  echo "Adding to $readme"
+  {
+    echo "### $modelname"
+    echo "![$modelname](../thumbnails/$(urlencode_grouped_case "$modelname.png"))"
+    echo 
+  } >> "$readme"
+  echo
 done

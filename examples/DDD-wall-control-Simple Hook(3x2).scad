@@ -13,6 +13,6 @@ rotateForPreview = preview ? -90 : 0;
 rotate([0,0,rotateForPreview]) {
     sidepiece(numY = hookDepth, numZ = hookHeight, type=UHOOK, vertical=preview);
     if (preview) {
-        rotate([0,0,0]) spacer(numX=1, numY = hookHeight, locking=true, oneSide=true, vertical=preview, place=[1,0,hookHeight]);
+        spacer(numX=1, numY = hookHeight, locking=true, oneSide=true, vertical=preview, place=[1,0,hookHeight]);
     }
 }
