@@ -3,11 +3,12 @@
 use <../resources/rcolyer/threads-scad/threads.scad>
 
 // wall control has a 1" pitch DDD has a 1" pitch to match
-wc_xPitch = inchesToMM(1);
-wc_yPitch = inchesToMM(1);
-wc_zPitch = inchesToMM(1);
+wc_xPitch = inchesToMM(1); // horizontal distance between wall control features
+wc_yPitch = inchesToMM(1); // vertical distance between wall control features
+wc_zPitch = inchesToMM(1); // distance from wall control for system features
 
 // spacers have different heights and pitch
+wc_centerpieceYPitch = inchesToMM(1.65);
 wc_centerpieceZPitch = inchesToMM(1.65);
 wc_spacerHeight = 1/4; // inches
 
@@ -81,7 +82,7 @@ function centerpieceWidth(xCount) = (wc_xPitch*xCount)-(centerpieceFitSpaceX*2);
 // numZ    = number of grid units in Z
 // x       = position to get Y position from in mm
 // zOffset = distance from y axis at numZ in mm
-function getYforX(numY, numZ, x, zOffset=0) = -(numY/(numZ-(zOffset/wc_zPitch)))*(x-zOffset) + (numY * wc_yPitch);
+function getYforX(numY, numZ, x, zOffset=0) = -(numZ/(numY-(zOffset/wc_zPitch)))*(x-zOffset) + (numZ * wc_yPitch);
 
 // wall control is made to match traditional pegboard, so its measurements are in inches
 function inchesToMM(inches) = inches * 25.4;
