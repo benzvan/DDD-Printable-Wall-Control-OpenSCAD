@@ -1,0 +1,18 @@
+$fa = 1;
+$fs = 0.4;
+
+include<../src/centerpieces.scad>
+include<../src/sidepieces.scad>
+
+guideHeight = 2;
+guideDepth = 1; // no used for cable clips
+
+preview=true;
+rotateForPreview = preview ? -90 : 0;
+
+rotate([0,0,rotateForPreview]) {
+    sidepiece(numY = guideHeight, numZ = 1, type=CABLE_CLIP, vertical=preview);
+    if (preview) {
+        spacer(numX=1, numY = guideHeight, locking=true, oneSide=true, vertical=preview, place=[1,0,guideHeight]);
+    }
+}
