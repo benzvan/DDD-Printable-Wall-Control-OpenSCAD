@@ -1,5 +1,8 @@
 # Example Index
 
+### DDD-wall-control-Bin
+![DDD-wall-control-Bin](../thumbnails/DDD-wall-control-Bin.png)
+
 ### DDD-wall-control-Bit Holder(4x2)
 ![DDD-wall-control-Bit Holder(4x2)](../thumbnails/DDD-wall-control-Bit%20Holder%284x2%29.png)
 

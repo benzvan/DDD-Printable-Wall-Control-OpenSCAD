@@ -7,6 +7,10 @@ wc_xPitch = inchesToMM(1); // horizontal distance between wall control features
 wc_yPitch = inchesToMM(1); // vertical distance between wall control features
 wc_zPitch = inchesToMM(1); // distance from wall control for system features
 
+// wall control slots have a 2" pitch with every other hole having a slot
+wc_slotYFactor = 2;
+wc_slotYPitch = wc_slotYFactor * wc_yPitch;
+
 // spacers have different heights and pitch
 wc_centerpieceYPitch = inchesToMM(1.65);
 wc_centerpieceZPitch = inchesToMM(1.65);
@@ -16,9 +20,9 @@ wc_spacerHeight = 1/4; // inches
 wc_fa = 1;
 wc_fs = 0.4;
 
-wc_tabHeight = 3.9; // 0.15"
-wc_tabDepth = 3.9;
-wc_tabWidth = 9.8;
+wc_tabHeight = 3.9; // 0.15" z
+wc_tabDepth = 3.9; // x
+wc_tabWidth = 9.8; // y
 
 // epsilon minimal size for hull points and overlaps
 EPS = .01;
@@ -61,8 +65,8 @@ module tab(tabDepth = wc_tabDepth,
     noTaper = slot ? 0 : 1;
     translate([0,slot ? -tabWidth : 0,0]) minkowski() {
         hull() {
-            cube([tabDepth-tabTaper, tabWidth, tabHeight]);
-            translate([tabDepth,noTaper*tabTaper,noTaper*tabTaper]) cube([EPS, tabWidth-(noTaper*2*tabTaper), tabHeight-(noTaper*2*tabTaper)]);
+            cube([tabDepth - tabTaper, tabWidth, tabHeight]);
+            translate([tabDepth, noTaper * tabTaper, noTaper * tabTaper]) cube([EPS, tabWidth-(noTaper*2*tabTaper), tabHeight-(noTaper*2*tabTaper)]);
         }
         cube(2*fitSpace, center=true);
     }

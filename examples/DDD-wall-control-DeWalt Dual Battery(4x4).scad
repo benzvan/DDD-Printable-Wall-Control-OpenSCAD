@@ -35,8 +35,8 @@ module dualBattery() {
 }
 
 module parts() {
-    color("grey") sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, type=BRACKET, vertical=true, place=[0,-1,0]);
-    color("grey") sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, type=BRACKET, side=LEFT, vertical=true, place=[4,-1,0]);
+    color("grey") sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, type=BRACKET, vertical=true, place=[-1,-1,0]);
+    color("grey") sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, type=BRACKET, side=LEFT, vertical=true, place=[5,-1,0]);
     color("white") spacer(numX=centerpiece_xCount,numY=2, locking=true, vertical=true, place=[0,-1,-1]);
 }
 

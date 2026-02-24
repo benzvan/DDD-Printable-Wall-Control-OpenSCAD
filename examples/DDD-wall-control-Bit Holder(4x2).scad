@@ -17,8 +17,8 @@ bitHolder_bitsPerShelf = 8;
 
 centerpiece_xCount = 4; // width of centerpice
 centerpiece_yCount = 2; // depth of centerpiece
-sidepiece_yCount = 2;   // depth of bracket
-sidepiece_zCount = 2;   // height of bracket
+sidepiece_yCount = 2;   // height of bracket
+sidepiece_zCount = 3;   // depth of bracket
 
 
 preview = true;
@@ -56,7 +56,7 @@ module bitSteps(numX, numY, stepDepth, stepCount, bitCount) {
 }
 
 module parts() {
-    color("grey") sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, type=BRACKET, invert=true, vertical=true, place=[0,-sidepiece_yCount,sidepiece_zCount]);
-    color("grey") sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, type=BRACKET, invert=true, side=LEFT, vertical=true, place=[centerpiece_xCount,-sidepiece_yCount,sidepiece_zCount]);
-    color("white") spacer(numX=centerpiece_xCount,numY=1, locking=true, vertical=true, place=[0,-sidepiece_yCount,sidepiece_zCount]);
+    color("grey") sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, type=BRACKET, invert=true, vertical=true, place=[-1, -centerpiece_yCount, sidepiece_yCount]);
+    color("grey") sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, type=BRACKET, invert=true, side=LEFT, vertical=true, place=[centerpiece_xCount + 1, -centerpiece_yCount, sidepiece_yCount]);
+    color("white") spacer(numX=centerpiece_xCount,numY=1, locking=true, vertical=true, place=[0, -centerpiece_yCount, sidepiece_yCount]);
 }

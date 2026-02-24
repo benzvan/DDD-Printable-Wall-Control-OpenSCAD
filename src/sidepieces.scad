@@ -19,6 +19,7 @@ RIGHT = "right";
 
 /*
 // standard sidepiece/bracket
+// note: Y and Z have different meanings for sidepieces than other parts
 numY                      int: distance in wc grid units vertically on wall (will be rendered in x)
 numZ                      int: distance in wc grid units out from wall
 type                   string: see sidepiece types above
@@ -63,7 +64,7 @@ module sidepiece(
 
     bracketXPlacement = place == undef ? 0 : ( side == RIGHT ? place.x * wc_xPitch - wc_centerpieceFitSpaceY : centerpieceWidth( place.x ) ) + ( side == RIGHT ? 0 : wc_centerpieceFitSpaceY ) ;
     bracketYPlacement = place == undef ? 0 : place.y * wc_yPitch;
-    bracketZPlacement = place == undef ? 0 : ( place.z - numZ ) * wc_zPitch  + ( invert ? -0 : wc_bracketWidth );
+    bracketZPlacement = place == undef ? 0 : ( place.z - numY ) * wc_zPitch  + ( invert ? 0 : wc_bracketWidth );
 
     baseFlatXPlacement = 0;
     baseFlatYPlacement = 0;
@@ -321,12 +322,18 @@ module wallControlHooks(numZ) {
     slotThickness = 1.4;
     flatThickness = inchesToMM(1/4);
     
-    backOfBoard = flatThickness+slotThickness;
+    backOfBoard = flatThickness + slotThickness;
     bottomOfHook = -3.1;
     slotConnectorHeight = 21.6;
 
-    translate([wc_zPitch*(numZ-1),0,0]) wallControlTopHook(slotWidth, bottomOfHook, backOfBoard, slotConnectorHeight);
-    wallControlBottomHook(slotWidth, bottomOfHook, backOfBoard, slotConnectorHeight);
+    translate([wc_zPitch * (numZ - 1 ), 0, 0]) wallControlTopHook(slotWidth, bottomOfHook, backOfBoard, slotConnectorHeight);
+
+    firstBottomTab = (numZ % wc_slotYFactor == 0) ? 1 : 0;
+    for( i = [0:numZ - 1 - firstBottomTab]) {
+        if (i % wc_slotYFactor == 0) {
+            translate([(firstBottomTab * wc_zPitch) + (i * wc_zPitch),0,0]) wallControlBottomHook(slotWidth, bottomOfHook, backOfBoard, slotConnectorHeight);
+        }
+    }
 }
 
 // top hook only
