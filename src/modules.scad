@@ -15,14 +15,20 @@ wc_slotYPitch = wc_slotYFactor * wc_yPitch;
 wc_centerpieceYPitch = inchesToMM(1.65);
 wc_centerpieceZPitch = inchesToMM(1.65);
 wc_spacerHeight = 1/4; // inches
+wc_centerpieceFitSpaceY = 0.2;
 
 // some cylinders need to be fine to work
 wc_fa = 1;
 wc_fs = 0.4;
 
+// default size of connecting tabs
 wc_tabHeight = 3.9; // 0.15" z
 wc_tabDepth = 3.9; // x
 wc_tabWidth = 9.8; // y
+
+// screw threads
+wc_locking_hole_diameter = 17.4;
+wc_locking_hole_thread_pitch = 2.5;
 
 // epsilon minimal size for hull points and overlaps
 EPS = .01;
@@ -79,6 +85,7 @@ module tab(tabDepth = wc_tabDepth,
 // centerpieceWidth calculates the width of a centerpice to fit between two brackets or flats
 centerpieceFitSpaceX = 1.2;
 function centerpieceWidth(xCount) = (wc_xPitch*xCount)-(centerpieceFitSpaceX*2);
+function centerpieceDepth(xCount) = (wc_xPitch*xCount)-(centerpieceFitSpaceX);
 
 // getYforX calculates the y position at x on a slope defined by numY and numZ for brackets
 // zOffset moves the zero of the line on the slope to accomodate a blunt end to the bracket

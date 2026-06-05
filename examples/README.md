@@ -6,6 +6,9 @@
 ### DDD-wall-control-Bit Holder(4x2)
 ![DDD-wall-control-Bit Holder(4x2)](../thumbnails/DDD-wall-control-Bit%20Holder%284x2%29.png)
 
+### DDD-wall-control-Box Holder
+![DDD-wall-control-Box Holder](../thumbnails/DDD-wall-control-Box%20Holder.png)
+
 ### DDD-wall-control-Cable Clip(1x1)
 ![DDD-wall-control-Cable Clip(1x1)](../thumbnails/DDD-wall-control-Cable%20Clip%281x1%29.png)
 
@@ -26,4 +29,7 @@
 
 ### DDD-wall-control-Simple Hook(3x2)
 ![DDD-wall-control-Simple Hook(3x2)](../thumbnails/DDD-wall-control-Simple%20Hook%283x2%29.png)
+
+### DDD-wall-control-Square Holder(4x2)
+![DDD-wall-control-Square Holder(4x2)](../thumbnails/DDD-wall-control-Square%20Holder%284x2%29.png)
 

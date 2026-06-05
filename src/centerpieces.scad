@@ -1,6 +1,5 @@
 include<./modules.scad>
     
-wc_centerpieceFitSpaceY = 0.2;
 
 // --------
 // - spacer(numX, numY)                                             : a spacer with the given dimensions in wc_pitch units
@@ -33,7 +32,7 @@ module spacer(numX, numY, numZ=wc_spacerHeight, tabHeight=0, locking=false, cust
 
 module spacerBlock(numX, numY, numZ, oneSide) {
     totalXmm = centerpieceWidth(numX);
-    totalYmm = numY * wc_yPitch - wc_centerpieceFitSpaceY;
+    totalYmm = centerpieceDepth(numY);
     totalZmm = numZ * wc_zPitch;
     if (oneSide) {
         filletR = totalZmm/2;
@@ -45,6 +44,35 @@ module spacerBlock(numX, numY, numZ, oneSide) {
     } else {
         cube([centerpieceWidth(numX), totalYmm, totalZmm]);
     }
+}
+
+module bin(numX, numY, numZ, tabHeight, thickness, inside_filet_radius) {
+    filetRadius = inside_filet_radius > 0 ? inside_filet_radius : EPS;
+    insideXMM = centerpieceWidth(numX) - (2 * thickness) - (2 * filetRadius); 
+    insideYMM = (numY * wc_yPitch) - (3 * thickness) - (2 * filetRadius);
+    insideZMM = (numZ * wc_zPitch) - thickness;
+    difference() {
+        spacer(numX, numY, numZ, tabHeight = tabHeight);
+        translate([thickness + filetRadius, thickness + filetRadius, thickness + filetRadius]) minkowski() {
+            hull() {
+                translate([0, 0, 0]) sphere(r=filetRadius);
+                translate([insideXMM, 0, 0]) sphere(r=filetRadius);
+                translate([insideXMM, insideYMM, 0]) sphere(r=filetRadius);
+                translate([0, insideYMM, 0]) sphere(r=filetRadius);
+                translate([0, 0, insideZMM]) sphere(r=filetRadius);
+                translate([insideXMM, 0, insideZMM]) sphere(r=filetRadius);
+                translate([insideXMM, insideYMM, insideZMM]) sphere(r=filetRadius);
+                translate([0, insideYMM, insideZMM]) sphere(r=filetRadius);
+            }
+        }
+        translate([centerpieceWidth(1) / 2 - .25 + (0 * wc_xPitch), -EPS, .5 * wc_yPitch + ((numZ - 1) * wc_yPitch)]) lockCutout();
+        translate([centerpieceWidth(1) / 2 - .25 + ((numX-1) * wc_xPitch), -EPS, .5 * wc_yPitch + ((numZ - 1) * wc_yPitch)]) lockCutout();
+    }
+}
+
+module lockCutout() {
+    cutoutRadius = 18 / 2;
+    rotate([-90,0,0]) cylinder(r = cutoutRadius, h = wc_yPitch);
 }
 
 // generates tabs for left and right of centerpice
@@ -75,14 +103,40 @@ module customLockingHoles(customHoles) {
 
 // threaded holes for inserting 8mm lock pins
 module lockingHole() {
-    threadLength = inchesToMM(1/4);
-    threadPitch = 2.5;
-    diameter=17.4;
+    threadLength = inchesToMM(wc_spacerHeight);
+    threadPitch = wc_locking_hole_thread_pitch;
+    diameter = wc_locking_hole_diameter;
     holeLength = inchesToMM(1);
     // from rcolyer thread library. Fast but still a little chonky for a lot of holes
-    //translate([0,0,holeLength+threadLength-EPS]) rotate([180,0,0]) RodStart(diameter=diameter, thread_len=threadLength, thread_diam=diameter, thread_pitch=threadPitch, height=inchesToMM(1));
     translate([0,0,-EPS]) ScrewThread(outer_diam=diameter, height=threadLength, pitch=threadPitch, tooth_angle=31, tolerance=.4, tip_height=0, tooth_height=2, tip_min_fract=0);
     translate([0,0,10+threadLength-2*EPS]) cylinder(d=diameter, h=20, center=true);
+}
+
+
+//difference() {
+//rotate([0, 0, -130]) translate([-100, -175, 0]) import("/Users/bzvan/Documents/git/aderusha/DDD-Printable-Wall-Control-System/Accessories/8mm Lock Pin.stl", convexity=3);
+//lockingScrew();
+//}
+
+module lockingScrew() {
+    threadLength = inchesToMM(wc_spacerHeight);
+    lockingHoleDiameter = inchesToMM(1/4);
+    threadPitch = 2.5;
+    diameter = 16.8;
+    plate_thickness = 1;
+    thread_flattening = 1;
+    // from rcolyer thread library. Fast but still a little chonky for a lot of holes
+    intersection() {
+        difference() {
+            translate([0,0,-EPS]) ScrewThread(outer_diam=diameter, height=threadLength, pitch=threadPitch, tooth_angle=31, tolerance=-.4, tip_height=4, tooth_height=2, tip_min_fract=0.75);
+            cube(lockingHoleDiameter+.1, center=true);
+        }
+        cylinder(d=diameter-thread_flattening, h=threadLength);
+    }
+    translate([0, 0, threadLength+plate_thickness]) hull() {
+        translate([0, 0, -lockingHoleDiameter/2]) cylinder(d=lockingHoleDiameter-.1, h=EPS);
+        sphere(d=lockingHoleDiameter-.1);
+    }
 }
 
 // --------

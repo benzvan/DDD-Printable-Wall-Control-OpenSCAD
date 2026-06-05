@@ -5,53 +5,54 @@ include<../src/centerpieces.scad>
 include<../src/sidepieces.scad>
 include<../src/sidepieces.scad>
 
-bin_xCount = 6; // width of bin
-bin_yCount = 3; // depth of bin
-bin_zCount = 2; // height of bin
+default_bin_xCount = 2; // width of bin
+default_bin_yCount = 2; // depth of bin
+default_bin_zCount = 3; // height of bin
 
-sidepiece_yCount = 2;   // height of bracket
-sidepiece_zCount = 3;   // depth of bracket
+default_bin_thickness = 1;
+default_inside_filet_radius = 1;
 
-thickness = 1;
+default_tabs_at_top = true;
 
-tabs_at_top = true;
-tabHeight = tabs_at_top ? bin_zCount * wc_zPitch - wc_sidepieceTabFromTop - wc_tabHeight: 0;
+default_preview = true; // arranges all necessary parts for preview or printing
 
-preview = true;
-// orient for preview image
-rotate([0,0,preview ? 180 : 0]) {
-    // renders just the sidepiece
-    bin(numX = bin_xCount, numY = bin_yCount, numZ = bin_zCount, tabHeight = tabHeight);
+wallControlBin(
+    bin_xCount = default_bin_xCount,
+    bin_yCount = default_bin_yCount,
+    bin_zCount = default_bin_zCount,
+    bin_thickness = default_bin_thickness,
+    inside_filet_radius = default_inside_filet_radius,
+    tabs_at_top = default_tabs_at_top,
+    preview = default_preview
+);
 
-    // renders full parts list in place
-    if (preview) { parts(); }
-}
+module wallControlBin(
+    bin_xCount, // width of bin (horizontal on wall control)
+    bin_yCount, // depth of bin (from wall control surface outward)
+    bin_zCount, // height of bin (vertical on wall conrol)
+    bin_thickness, // thickness of walls of bin
+    inside_filet_radius, // rounding radius inside the bin
+    tabs_at_top, // tabs at the top true or bottom false
+    preview, // prints in preview orientation for preview image in README
+) {
+    tabHeight = tabs_at_top ? bin_zCount * wc_zPitch - wc_sidepieceTabFromTop - wc_tabHeight: 0;
 
-module bin(numX, numY, numZ, tabHeight) {
-    filetRadius = 1;
-    insideXMM = centerpieceWidth(numX) - (2 * thickness) - (2 * filetRadius); 
-    insideYMM = (numY * wc_yPitch) - (2 * thickness) - (2 * filetRadius);
-    insideZMM = (numZ * wc_zPitch) - thickness;
-    difference() {
-        spacer(numX, numY, numZ, tabHeight = tabHeight);
-        translate([thickness + filetRadius, thickness + filetRadius, thickness + filetRadius]) minkowski() {
-            cube([insideXMM, insideYMM, insideZMM]);
-            sphere(r=filetRadius);
-        }
-        translate([centerpieceWidth(1) / 2 - .25 + (0 * wc_xPitch), -EPS, .5 * wc_yPitch + ((bin_zCount - 1) * wc_yPitch)]) lockCutout();
-        translate([centerpieceWidth(1) / 2 - .25 + (5 * wc_xPitch), -EPS, .5 * wc_yPitch + ((bin_zCount - 1) * wc_yPitch)]) lockCutout();
+    // orient for preview image
+    rotate([0,0,preview ? 180 : 0]) {
+        // renders just the centerpiece
+        bin(numX = bin_xCount, numY = bin_yCount, numZ = bin_zCount, tabHeight = tabHeight, bin_thickness, inside_filet_radius);
+
+        // renders full parts list in place
+        if (preview) { parts(bin_xCount, bin_yCount, bin_zCount, !tabs_at_top); }
     }
 }
 
-module lockCutout() {
-    cutoutRadius = 18 / 2;
-    rotate([-90,0,0]) cylinder(r = cutoutRadius, h = wc_yPitch); // 4 EPS is weird here, 2 should work but doesn't. I blame minkowski.
-}
-
-module parts() {
+module parts(numX, numY, numZ, invert_sidepieces) {
     translate([0, 0, -wc_tabHeight - wc_sidepieceTabFromTop]) {
-        color("grey") sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, type=BRACKET, vertical=true, place=[-1, 0, bin_zCount]);
-        color("grey") sidepiece(numY=sidepiece_yCount,numZ=sidepiece_zCount, type=BRACKET, side=LEFT, vertical=true, place=[bin_xCount + 1 , 0, bin_zCount ]);
+        color("grey") sidepiece(numY=numZ,numZ=numY, type=BRACKET, invert=invert_sidepieces, vertical=true, place=[-1, 0, numZ]);
+        color("grey") sidepiece(numY=numZ,numZ=numY, type=BRACKET, invert=invert_sidepieces, side=LEFT, vertical=true, place=[numX + 1 , 0, numZ ]);
     }
-    color("white") spacer(numX=bin_xCount,numY=1, locking=true, vertical=true, place=[0,-1, bin_zCount]);
+    color("white") spacer(numX=numX,numY=1, locking=true, vertical=true, place=[0,-1, numZ]);
+    color("pink") translate([centerpieceWidth(1) / 2 - .25 + (0 * wc_xPitch), -wc_zPitch/2, .5 * wc_yPitch + ((numZ - 1) * wc_yPitch)]) rotate([90, 0, 0]) lockingScrew();
+    color("pink") translate([centerpieceWidth(1) / 2 - .25 + ((numX-1) * wc_xPitch), -wc_zPitch/2, .5 * wc_yPitch + ((numZ - 1) * wc_yPitch)]) rotate([90, 0, 0]) lockingScrew();
 }
