@@ -3,7 +3,6 @@ $fa = 1;
 
 include<../src/centerpieces.scad>
 include<../src/sidepieces.scad>
-include<../src/sidepieces.scad>
 
 default_bin_xCount = 4; // width of bin on wall
 default_bin_yCount = 2; // depth of bin

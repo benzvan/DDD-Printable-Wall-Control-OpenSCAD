@@ -27,6 +27,9 @@
 ### DDD-wall-control-Rigid-18v-dual battery
 ![DDD-wall-control-Rigid-18v-dual battery](../thumbnails/DDD-wall-control-Rigid-18v-dual%20battery.png)
 
+### DDD-wall-control-Ryobi 40v dual battery
+![DDD-wall-control-Ryobi 40v dual battery](../thumbnails/DDD-wall-control-Ryobi%2040v%20dual%20battery.png)
+
 ### DDD-wall-control-Simple Hook(3x2)
 ![DDD-wall-control-Simple Hook(3x2)](../thumbnails/DDD-wall-control-Simple%20Hook%283x2%29.png)
 
